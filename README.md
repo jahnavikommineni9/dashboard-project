@@ -11,6 +11,8 @@ A complete production-ready analytics dashboard built with modern technologies, 
 
 ---
 
+![Dashboard Preview]([https://raw.githubusercontent.com/jahnavikommineni9/dashboard-project/main/dashboard-preview.png](https://github.com/jahnavikommineni9/dashboard-project/blob/main/dashboard.png.png))
+
 ## 📋 Quick Start
 
 ### Prerequisites
