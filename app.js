@@ -1,448 +1,664 @@
-// Quiz Application JavaScript
-
-// Quiz data embedded directly
-const quizData = {
-  questions: [
-    {
-      question: "What does JSON stand for?",
-      options: ["JavaScript Object Notation", "JavaScript Online Network", "Java Standard Object Notation", "JavaScript Operational Notation"],
-      correct: 0,
-      category: "Web Development"
-    },
-    {
-      question: "Which HTML element is used for the largest heading?",
-      options: ["&lt;h6&gt;", "&lt;h1&gt;", "&lt;head&gt;", "&lt;heading&gt;"],
-      correct: 1,
-      category: "HTML"
-    },
-    {
-      question: "What does CSS stand for?",
-      options: ["Computer Style Sheets", "Creative Style Sheets", "Cascading Style Sheets", "Colorful Style Sheets"],
-      correct: 2,
-      category: "CSS"
-    },
-    {
-      question: "Which JavaScript method is used to add an element to the end of an array?",
-      options: ["push()", "pop()", "shift()", "unshift()"],
-      correct: 0,
-      category: "JavaScript"
-    },
-    {
-      question: "What is the correct way to create a function in JavaScript?",
-      options: ["function = myFunction() {}", "function myFunction() {}", "create myFunction() {}", "function:myFunction() {}"],
-      correct: 1,
-      category: "JavaScript"
-    },
-    {
-      question: "Which HTML attribute specifies an alternate text for an image?",
-      options: ["title", "src", "alt", "href"],
-      correct: 2,
-      category: "HTML"
-    },
-    {
-      question: "What does DOM stand for in web development?",
-      options: ["Document Object Model", "Data Object Management", "Dynamic Object Method", "Document Operational Mode"],
-      correct: 0,
-      category: "Web Development"
-    },
-    {
-      question: "Which CSS property is used to change the text color?",
-      options: ["font-color", "text-color", "color", "text-style"],
-      correct: 2,
-      category: "CSS"
-    },
-    {
-      question: "What is the correct syntax for creating an array in JavaScript?",
-      options: ["var colors = \"red\", \"green\", \"blue\"", "var colors = (1:\"red\", 2:\"green\", 3:\"blue\")", "var colors = [\"red\", \"green\", \"blue\"]", "var colors = 1 = (\"red\"), 2 = (\"green\"), 3 = (\"blue\")"],
-      correct: 2,
-      category: "JavaScript"
-    },
-    {
-      question: "Which method is used to remove the last element from an array in JavaScript?",
-      options: ["pop()", "push()", "shift()", "splice()"],
-      correct: 0,
-      category: "JavaScript"
-    }
+// Sample Data
+const DATA = {
+  overviewStats: {
+    totalSpendYtd: 2847392,
+    totalInvoices: 1247,
+    documentsUploaded: 3891,
+    averageInvoiceValue: 2283,
+    spendGrowth: 12.5,
+    invoiceGrowth: 8.3,
+    documentsGrowth: 15.2,
+    avgValueGrowth: 3.8
+  },
+  invoiceTrends: {
+    months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'],
+    invoiceCounts: [50, 65, 58, 72, 80, 75, 88, 95, 90, 102, 98],
+    invoiceValues: [125, 168, 145, 198, 220, 195, 238, 255, 242, 275, 265]
+  },
+  topVendors: [
+    { name: 'Acme Corp', spend: 385420 },
+    { name: 'TechSupply Inc', spend: 312580 },
+    { name: 'Global Services', spend: 287340 },
+    { name: 'Premier Products', spend: 245680 },
+    { name: 'Metro Supplies', spend: 198750 },
+    { name: 'Innovate Solutions', spend: 176290 },
+    { name: 'Quality Goods', spend: 152840 },
+    { name: 'Swift Logistics', spend: 134560 },
+    { name: 'Atlas Equipment', spend: 118920 },
+    { name: 'Zenith Materials', spend: 95430 }
   ],
-  settings: {
-    timePerQuestion: 30,
-    totalQuestions: 10,
-    passingScore: 70
+  categorySpend: [
+    { category: 'IT & Software', amount: 892450, percentage: 31.3 },
+    { category: 'Office Supplies', amount: 625380, percentage: 22.0 },
+    { category: 'Professional Services', amount: 512290, percentage: 18.0 },
+    { category: 'Equipment', amount: 398150, percentage: 14.0 },
+    { category: 'Utilities', amount: 254730, percentage: 8.9 },
+    { category: 'Other', amount: 164392, percentage: 5.8 }
+  ],
+  cashOutflowForecast: {
+    months: ['Dec 2025', 'Jan 2026', 'Feb 2026', 'Mar 2026', 'Apr 2026', 'May 2026'],
+    amounts: [245, 268, 252, 278, 265, 290]
   }
 };
 
-// Quiz state
-class QuizApp {
-  constructor() {
-    this.currentQuestionIndex = 0;
-    this.score = 0;
-    this.timeLeft = quizData.settings.timePerQuestion;
-    this.timer = null;
-    this.selectedAnswer = null;
-    this.isAnswered = false;
-    this.userAnswers = [];
-    
-    this.initializeElements();
-    this.attachEventListeners();
-    this.showScreen('start'); // Ensure start screen is visible
-  }
-  
-  initializeElements() {
-    // Screens
-    this.startScreen = document.getElementById('start-screen');
-    this.quizScreen = document.getElementById('quiz-screen');
-    this.resultsScreen = document.getElementById('results-screen');
-    
-    // Start screen elements
-    this.startBtn = document.getElementById('start-btn');
-    
-    // Quiz screen elements
-    this.questionNumber = document.getElementById('question-number');
-    this.totalQuestions = document.getElementById('total-questions');
-    this.progressFill = document.getElementById('progress-fill');
-    this.timerCountdown = document.getElementById('timer-countdown');
-    this.questionText = document.getElementById('question-text');
-    this.optionsContainer = document.getElementById('options-container');
-    this.optionBtns = document.querySelectorAll('.option-btn');
-    this.nextBtn = document.getElementById('next-btn');
-    
-    // Results screen elements
-    this.finalScore = document.getElementById('final-score');
-    this.totalScore = document.getElementById('total-score');
-    this.percentageScore = document.getElementById('percentage-score');
-    this.performanceMessage = document.getElementById('performance-message');
-    this.correctCount = document.getElementById('correct-count');
-    this.incorrectCount = document.getElementById('incorrect-count');
-    this.restartBtn = document.getElementById('restart-btn');
-    
-    // Set total questions display
-    this.totalQuestions.textContent = quizData.settings.totalQuestions;
-    this.totalScore.textContent = quizData.settings.totalQuestions;
-  }
-  
-  attachEventListeners() {
-    this.startBtn.addEventListener('click', () => this.startQuiz());
-    this.nextBtn.addEventListener('click', () => this.nextQuestion());
-    this.restartBtn.addEventListener('click', () => this.restartQuiz());
-    
-    // Option buttons
-    this.optionBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => this.selectAnswer(e));
+// Generate sample invoice data
+function generateInvoices() {
+  const vendors = [
+    'Acme Corp', 'TechSupply Inc', 'Global Services', 'Premier Products',
+    'Metro Supplies', 'Innovate Solutions', 'Quality Goods', 'Swift Logistics',
+    'Atlas Equipment', 'Zenith Materials', 'Office Depot', 'Tech Solutions',
+    'Business Partners', 'Supply Chain Co', 'Enterprise Services'
+  ];
+  const statuses = ['Paid', 'Paid', 'Paid', 'Paid', 'Paid', 'Paid', 'Pending', 'Pending', 'Processing', 'Processing', 'Processing', 'Overdue'];
+  const invoices = [];
+
+  for (let i = 0; i < 50; i++) {
+    const month = Math.floor(Math.random() * 11) + 1;
+    const day = Math.floor(Math.random() * 28) + 1;
+    const date = `2025-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const amount = (Math.random() * 49500 + 500).toFixed(2);
+    const vendor = vendors[Math.floor(Math.random() * vendors.length)];
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
+
+    invoices.push({
+      invoice_number: `INV-2025-${String(1200 + i).padStart(4, '0')}`,
+      vendor: vendor,
+      date: date,
+      amount: parseFloat(amount),
+      status: status
     });
-    
-    // Keyboard navigation
-    document.addEventListener('keydown', (e) => this.handleKeyDown(e));
   }
-  
-  startQuiz() {
-    this.currentQuestionIndex = 0;
-    this.score = 0;
-    this.userAnswers = [];
-    this.showScreen('quiz');
-    this.loadQuestion();
+
+  return invoices.sort((a, b) => new Date(b.date) - new Date(a.date));
+}
+
+const INVOICES = generateInvoices();
+
+// State management
+const state = {
+  currentView: 'dashboard',
+  invoices: INVOICES,
+  filteredInvoices: INVOICES,
+  currentPage: 1,
+  rowsPerPage: 10,
+  sortColumn: null,
+  sortDirection: 'asc',
+  searchQuery: '',
+  chatMessages: []
+};
+
+// Utility Functions
+function formatCurrency(amount) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(amount);
+}
+
+function formatNumber(num) {
+  return new Intl.NumberFormat('en-US').format(num);
+}
+
+// Navigation
+function switchView(viewName) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  if (viewName === 'dashboard') {
+    document.getElementById('dashboard-view').classList.add('active');
+    document.querySelector('[data-view="dashboard"]').classList.add('active');
+  } else if (viewName === 'chat') {
+    document.getElementById('chat-view').classList.add('active');
+    document.querySelector('[data-view="chat"]').classList.add('active');
   }
-  
-  showScreen(screenName) {
-    // Hide all screens first
-    const screens = [this.startScreen, this.quizScreen, this.resultsScreen];
-    screens.forEach(screen => {
-      screen.classList.remove('active');
-      screen.classList.add('hidden');
-    });
-    
-    // Show target screen after a brief delay
-    setTimeout(() => {
-      let targetScreen;
-      switch (screenName) {
-        case 'start':
-          targetScreen = this.startScreen;
-          break;
-        case 'quiz':
-          targetScreen = this.quizScreen;
-          break;
-        case 'results':
-          targetScreen = this.resultsScreen;
-          break;
+
+  state.currentView = viewName;
+}
+
+// Initialize Charts
+let charts = {};
+
+function initCharts() {
+  // Invoice Volume & Value Trend Chart
+  const trendCtx = document.getElementById('trendChart').getContext('2d');
+  charts.trend = new Chart(trendCtx, {
+    type: 'line',
+    data: {
+      labels: DATA.invoiceTrends.months,
+      datasets: [
+        {
+          label: 'Invoice Count',
+          data: DATA.invoiceTrends.invoiceCounts,
+          borderColor: '#3B82F6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          yAxisID: 'y',
+          tension: 0.4
+        },
+        {
+          label: 'Invoice Value ($K)',
+          data: DATA.invoiceTrends.invoiceValues,
+          borderColor: '#10B981',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          yAxisID: 'y1',
+          tension: 0.4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false
+      },
+      scales: {
+        y: {
+          type: 'linear',
+          position: 'left',
+          title: {
+            display: true,
+            text: 'Invoice Count'
+          }
+        },
+        y1: {
+          type: 'linear',
+          position: 'right',
+          title: {
+            display: true,
+            text: 'Value ($K)'
+          },
+          grid: {
+            drawOnChartArea: false
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          position: 'top'
+        }
       }
-      
-      if (targetScreen) {
-        targetScreen.classList.remove('hidden');
-        targetScreen.classList.add('active');
+    }
+  });
+
+  // Top 10 Vendors Chart
+  const vendorCtx = document.getElementById('vendorChart').getContext('2d');
+  charts.vendor = new Chart(vendorCtx, {
+    type: 'bar',
+    data: {
+      labels: DATA.topVendors.map(v => v.name),
+      datasets: [{
+        label: 'Spend ($)',
+        data: DATA.topVendors.map(v => v.spend),
+        backgroundColor: '#1FB8CD',
+        borderRadius: 4
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            callback: function(value) {
+              return '$' + (value / 1000).toFixed(0) + 'K';
+            }
+          }
+        }
       }
-    }, 50);
-  }
-  
-  loadQuestion() {
-    const question = quizData.questions[this.currentQuestionIndex];
-    this.isAnswered = false;
-    this.selectedAnswer = null;
-    
-    // Update question counter and progress
-    this.questionNumber.textContent = this.currentQuestionIndex + 1;
-    const progressPercent = ((this.currentQuestionIndex + 1) / quizData.settings.totalQuestions) * 100;
-    this.progressFill.style.width = `${progressPercent}%`;
-    
-    // Display question
-    this.questionText.textContent = question.question;
-    
-    // Display options and reset their states
-    this.optionBtns.forEach((btn, index) => {
-      const optionText = btn.querySelector('.option-text');
-      optionText.innerHTML = question.options[index];
-      
-      // Reset button states completely
-      btn.classList.remove('selected', 'correct', 'incorrect');
-      btn.disabled = false;
-      btn.style.backgroundColor = '';
-      btn.style.borderColor = '';
-    });
-    
-    // Hide next button initially
-    this.nextBtn.classList.add('hidden');
-    
-    // Start timer
-    this.startTimer();
-  }
-  
-  startTimer() {
-    this.timeLeft = quizData.settings.timePerQuestion;
-    this.updateTimerDisplay();
-    
-    // Clear any existing timer
-    if (this.timer) {
-      clearInterval(this.timer);
     }
-    
-    this.timer = setInterval(() => {
-      this.timeLeft--;
-      this.updateTimerDisplay();
-      
-      if (this.timeLeft <= 0) {
-        this.handleTimeout();
+  });
+
+  // Spend by Category Chart
+  const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+  charts.category = new Chart(categoryCtx, {
+    type: 'pie',
+    data: {
+      labels: DATA.categorySpend.map(c => c.category),
+      datasets: [{
+        data: DATA.categorySpend.map(c => c.amount),
+        backgroundColor: ['#1FB8CD', '#FFC185', '#B4413C', '#ECEBD5', '#5D878F', '#DB4545']
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'right'
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const label = context.label || '';
+              const value = formatCurrency(context.parsed);
+              const percentage = DATA.categorySpend[context.dataIndex].percentage;
+              return `${label}: ${value} (${percentage}%)`;
+            }
+          }
+        }
       }
-    }, 1000);
-  }
-  
-  updateTimerDisplay() {
-    this.timerCountdown.textContent = this.timeLeft;
-    
-    // Add warning classes based on remaining time
-    this.timerCountdown.classList.remove('warning', 'danger');
-    
-    if (this.timeLeft <= 5) {
-      this.timerCountdown.classList.add('danger');
-    } else if (this.timeLeft <= 10) {
-      this.timerCountdown.classList.add('warning');
     }
-  }
-  
-  stopTimer() {
-    if (this.timer) {
-      clearInterval(this.timer);
-      this.timer = null;
-    }
-  }
-  
-  selectAnswer(event) {
-    if (this.isAnswered) return;
-    
-    const selectedBtn = event.currentTarget;
-    const selectedOption = parseInt(selectedBtn.dataset.option);
-    
-    this.selectedAnswer = selectedOption;
-    this.isAnswered = true;
-    this.stopTimer();
-    
-    // Mark selected answer
-    selectedBtn.classList.add('selected');
-    
-    // Show correct answer and feedback immediately
-    this.showAnswerFeedback();
-    
-    // Store user answer
-    const isCorrect = selectedOption === quizData.questions[this.currentQuestionIndex].correct;
-    this.userAnswers.push({
-      questionIndex: this.currentQuestionIndex,
-      selectedAnswer: selectedOption,
-      correctAnswer: quizData.questions[this.currentQuestionIndex].correct,
-      isCorrect: isCorrect
-    });
-    
-    // Update score
-    if (isCorrect) {
-      this.score++;
-    }
-    
-    // Show next button after a brief delay for feedback
-    setTimeout(() => {
-      this.nextBtn.classList.remove('hidden');
-    }, 1000);
-  }
-  
-  showAnswerFeedback() {
-    const correctIndex = quizData.questions[this.currentQuestionIndex].correct;
-    
-    this.optionBtns.forEach((btn, index) => {
-      btn.disabled = true;
-      
-      if (index === correctIndex) {
-        btn.classList.add('correct');
-      } else if (index === this.selectedAnswer && index !== correctIndex) {
-        btn.classList.add('incorrect');
+  });
+
+  // Cash Outflow Forecast Chart
+  const forecastCtx = document.getElementById('forecastChart').getContext('2d');
+  charts.forecast = new Chart(forecastCtx, {
+    type: 'bar',
+    data: {
+      labels: DATA.cashOutflowForecast.months,
+      datasets: [{
+        label: 'Cash Outflow ($K)',
+        data: DATA.cashOutflowForecast.amounts,
+        backgroundColor: '#8B5CF6',
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          ticks: {
+            callback: function(value) {
+              return '$' + value + 'K';
+            }
+          }
+        }
       }
-    });
+    }
+  });
+}
+
+// Table Functions
+function filterInvoices() {
+  const query = state.searchQuery.toLowerCase();
+  state.filteredInvoices = state.invoices.filter(inv => {
+    return (
+      inv.invoice_number.toLowerCase().includes(query) ||
+      inv.vendor.toLowerCase().includes(query) ||
+      inv.date.includes(query) ||
+      inv.amount.toString().includes(query) ||
+      inv.status.toLowerCase().includes(query)
+    );
+  });
+  state.currentPage = 1;
+  renderTable();
+}
+
+function sortInvoices(column) {
+  if (state.sortColumn === column) {
+    state.sortDirection = state.sortDirection === 'asc' ? 'desc' : 'asc';
+  } else {
+    state.sortColumn = column;
+    state.sortDirection = 'asc';
   }
-  
-  handleTimeout() {
-    if (this.isAnswered) return;
-    
-    this.isAnswered = true;
-    this.selectedAnswer = null;
-    this.stopTimer();
-    
-    // Show correct answer
-    this.showAnswerFeedback();
-    
-    // Store timeout as wrong answer
-    this.userAnswers.push({
-      questionIndex: this.currentQuestionIndex,
-      selectedAnswer: null,
-      correctAnswer: quizData.questions[this.currentQuestionIndex].correct,
-      isCorrect: false
-    });
-    
-    // Show next button after a brief delay
-    setTimeout(() => {
-      this.nextBtn.classList.remove('hidden');
-    }, 1000);
-  }
-  
-  nextQuestion() {
-    this.currentQuestionIndex++;
-    
-    if (this.currentQuestionIndex < quizData.settings.totalQuestions) {
-      this.loadQuestion();
+
+  state.filteredInvoices.sort((a, b) => {
+    let aVal = a[column];
+    let bVal = b[column];
+
+    if (column === 'amount') {
+      aVal = parseFloat(aVal);
+      bVal = parseFloat(bVal);
+    } else if (column === 'date') {
+      aVal = new Date(aVal);
+      bVal = new Date(bVal);
     } else {
-      this.showResults();
+      aVal = aVal.toString().toLowerCase();
+      bVal = bVal.toString().toLowerCase();
     }
-  }
-  
-  showResults() {
-    this.showScreen('results');
-    
-    // Calculate results
-    const percentage = Math.round((this.score / quizData.settings.totalQuestions) * 100);
-    const incorrectCount = quizData.settings.totalQuestions - this.score;
-    
-    // Display scores
-    this.finalScore.textContent = this.score;
-    this.percentageScore.textContent = percentage;
-    this.correctCount.textContent = this.score;
-    this.incorrectCount.textContent = incorrectCount;
-    
-    // Show performance message
-    this.showPerformanceMessage(percentage);
-  }
-  
-  showPerformanceMessage(percentage) {
-    let message = '';
-    let messageClass = '';
-    
-    if (percentage >= 90) {
-      message = 'Outstanding! You have excellent knowledge of web development!';
-      messageClass = 'excellent';
-    } else if (percentage >= 80) {
-      message = 'Great job! You have a solid understanding of web development concepts.';
-      messageClass = 'good';
-    } else if (percentage >= 70) {
-      message = 'Good work! You passed the quiz. Keep studying to improve further.';
-      messageClass = 'good';
-    } else if (percentage >= 50) {
-      message = 'Not bad, but there\'s room for improvement. Review the concepts and try again.';
-      messageClass = 'fair';
-    } else {
-      message = 'Keep studying! Web development takes practice. Don\'t give up!';
-      messageClass = 'poor';
-    }
-    
-    this.performanceMessage.innerHTML = `<p>${message}</p>`;
-    this.performanceMessage.className = `performance-message ${messageClass}`;
-  }
-  
-  restartQuiz() {
-    // Reset all state
-    this.currentQuestionIndex = 0;
-    this.score = 0;
-    this.userAnswers = [];
-    this.selectedAnswer = null;
-    this.isAnswered = false;
-    this.stopTimer();
-    
-    // Show start screen
-    this.showScreen('start');
-  }
-  
-  handleKeyDown(event) {
-    // Only handle keys during quiz
-    if (!this.quizScreen.classList.contains('active')) return;
-    
-    const key = event.key.toLowerCase();
-    
-    // Handle A, B, C, D keys for answer selection
-    if (['a', 'b', 'c', 'd'].includes(key) && !this.isAnswered) {
-      const optionIndex = key.charCodeAt(0) - 97; // Convert 'a' to 0, 'b' to 1, etc.
-      if (optionIndex < this.optionBtns.length) {
-        this.optionBtns[optionIndex].click();
-      }
-    }
-    
-    // Handle Enter key for next question
-    if (key === 'enter' && !this.nextBtn.classList.contains('hidden')) {
-      this.nextBtn.click();
-    }
-    
-    // Handle number keys 1-4 for answer selection
-    if (['1', '2', '3', '4'].includes(key) && !this.isAnswered) {
-      const optionIndex = parseInt(key) - 1;
-      if (optionIndex < this.optionBtns.length) {
-        this.optionBtns[optionIndex].click();
-      }
+
+    if (aVal < bVal) return state.sortDirection === 'asc' ? -1 : 1;
+    if (aVal > bVal) return state.sortDirection === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  renderTable();
+  updateSortIcons();
+}
+
+function updateSortIcons() {
+  document.querySelectorAll('.sort-icon').forEach(icon => {
+    icon.className = 'sort-icon';
+  });
+
+  if (state.sortColumn) {
+    const th = document.querySelector(`th[data-sort="${state.sortColumn}"]`);
+    if (th) {
+      const icon = th.querySelector('.sort-icon');
+      icon.classList.add(state.sortDirection);
     }
   }
 }
 
-// Initialize quiz when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-  const quiz = new QuizApp();
+function renderTable() {
+  const tbody = document.getElementById('invoiceTableBody');
+  const start = (state.currentPage - 1) * state.rowsPerPage;
+  const end = start + state.rowsPerPage;
+  const pageData = state.filteredInvoices.slice(start, end);
+
+  tbody.innerHTML = pageData.map(inv => `
+    <tr>
+      <td>${inv.invoice_number}</td>
+      <td>${inv.vendor}</td>
+      <td>${inv.date}</td>
+      <td>${formatCurrency(inv.amount)}</td>
+      <td><span class="status-badge status-badge--${inv.status.toLowerCase()}">${inv.status}</span></td>
+    </tr>
+  `).join('');
+
+  updateTableInfo();
+  updatePagination();
+}
+
+function updateTableInfo() {
+  const start = (state.currentPage - 1) * state.rowsPerPage + 1;
+  const end = Math.min(start + state.rowsPerPage - 1, state.filteredInvoices.length);
+  const total = state.filteredInvoices.length;
+  document.getElementById('tableCount').textContent = `Showing ${start}-${end} of ${total} invoices`;
+}
+
+function updatePagination() {
+  const totalPages = Math.ceil(state.filteredInvoices.length / state.rowsPerPage);
+  document.getElementById('pageInfo').textContent = `Page ${state.currentPage} of ${totalPages}`;
+  document.getElementById('prevPage').disabled = state.currentPage === 1;
+  document.getElementById('nextPage').disabled = state.currentPage === totalPages;
+}
+
+function changePage(direction) {
+  const totalPages = Math.ceil(state.filteredInvoices.length / state.rowsPerPage);
+  if (direction === 'prev' && state.currentPage > 1) {
+    state.currentPage--;
+  } else if (direction === 'next' && state.currentPage < totalPages) {
+    state.currentPage++;
+  }
+  renderTable();
+}
+
+// Chat Functions
+function addChatMessage(role, content) {
+  state.chatMessages.push({ role, content });
+  const messagesContainer = document.getElementById('chatMessages');
   
-  // Ensure start screen is visible on load
-  setTimeout(() => {
-    const startScreen = document.getElementById('start-screen');
-    if (startScreen) {
-      startScreen.classList.remove('hidden');
-      startScreen.classList.add('active');
-    }
-  }, 100);
-});
+  // Remove welcome screen if it exists
+  const welcome = messagesContainer.querySelector('.chat-welcome');
+  if (welcome) {
+    welcome.remove();
+  }
 
-// Prevent context menu on right click to avoid cheating
-document.addEventListener('contextmenu', (e) => e.preventDefault());
+  const messageDiv = document.createElement('div');
+  messageDiv.className = `chat-message chat-message--${role}`;
 
-// Handle page visibility changes
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) {
-    console.log('Quiz tab is now hidden');
+  const bubble = document.createElement('div');
+  bubble.className = 'message-bubble';
+
+  if (role === 'user') {
+    bubble.textContent = content;
   } else {
-    console.log('Quiz tab is now visible');
+    bubble.innerHTML = content;
   }
-});
 
-// Warn user before leaving page during quiz
-window.addEventListener('beforeunload', (e) => {
-  const quizScreen = document.getElementById('quiz-screen');
-  if (quizScreen && quizScreen.classList.contains('active')) {
-    e.preventDefault();
-    e.returnValue = 'Are you sure you want to leave? Your quiz progress will be lost.';
-    return e.returnValue;
+  messageDiv.appendChild(bubble);
+  messagesContainer.appendChild(messageDiv);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function showLoading() {
+  const messagesContainer = document.getElementById('chatMessages');
+  const loadingDiv = document.createElement('div');
+  loadingDiv.className = 'chat-message chat-message--assistant';
+  loadingDiv.id = 'loadingMessage';
+  loadingDiv.innerHTML = `
+    <div class="loading-indicator">
+      <div class="loading-dots">
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+      </div>
+    </div>
+  `;
+  messagesContainer.appendChild(loadingDiv);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function hideLoading() {
+  const loading = document.getElementById('loadingMessage');
+  if (loading) loading.remove();
+}
+
+function handleChatQuery(query) {
+  const lowerQuery = query.toLowerCase();
+  let response = '';
+
+  if (lowerQuery.includes('last 90 days') || lowerQuery.includes('90 days')) {
+    // Calculate last 90 days spend
+    const today = new Date();
+    const ninetyDaysAgo = new Date(today.setDate(today.getDate() - 90));
+    const recentInvoices = state.invoices.filter(inv => new Date(inv.date) >= ninetyDaysAgo);
+    const totalSpend = recentInvoices.reduce((sum, inv) => sum + inv.amount, 0);
+
+    response = `
+      <div class="message-text">Based on the data, here's the total spend for the last 90 days:</div>
+      <div class="message-sql">
+        <div class="sql-header">
+          <span class="sql-label">SQL Query</span>
+          <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+        </div>
+        <pre class="sql-code">SELECT SUM(amount) as total_spend
+FROM invoices
+WHERE invoice_date >= CURRENT_DATE - INTERVAL '90 days'</pre>
+      </div>
+      <div class="message-table">
+        <table class="result-table">
+          <thead><tr><th>total_spend</th></tr></thead>
+          <tbody><tr><td>${formatCurrency(totalSpend)}</td></tr></tbody>
+        </table>
+      </div>
+    `;
+  } else if (lowerQuery.includes('top 5 vendors') || lowerQuery.includes('top vendors')) {
+    const top5 = DATA.topVendors.slice(0, 5);
+    response = `
+      <div class="message-text">Here are the top 5 vendors by total spend:</div>
+      <div class="message-sql">
+        <div class="sql-header">
+          <span class="sql-label">SQL Query</span>
+          <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+        </div>
+        <pre class="sql-code">SELECT vendor_name, SUM(amount) as total_spend
+FROM invoices
+GROUP BY vendor_name
+ORDER BY total_spend DESC
+LIMIT 5</pre>
+      </div>
+      <div class="message-table">
+        <table class="result-table">
+          <thead><tr><th>vendor_name</th><th>total_spend</th></tr></thead>
+          <tbody>
+            ${top5.map(v => `<tr><td>${v.name}</td><td>${formatCurrency(v.spend)}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div class="message-chart">
+        <canvas id="chatChart${Date.now()}"></canvas>
+      </div>
+    `;
+
+    setTimeout(() => {
+      const canvasId = document.querySelector('.message-chart canvas:last-of-type').id;
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: top5.map(v => v.name),
+          datasets: [{
+            label: 'Spend ($)',
+            data: top5.map(v => v.spend),
+            backgroundColor: '#1FB8CD'
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } }
+        }
+      });
+    }, 100);
+  } else if (lowerQuery.includes('overdue')) {
+    const overdueInvoices = state.invoices.filter(inv => inv.status === 'Overdue');
+    response = `
+      <div class="message-text">Found ${overdueInvoices.length} overdue invoices:</div>
+      <div class="message-sql">
+        <div class="sql-header">
+          <span class="sql-label">SQL Query</span>
+          <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+        </div>
+        <pre class="sql-code">SELECT invoice_number, vendor_name, due_date, amount, status
+FROM invoices
+WHERE status = 'Overdue' AND due_date < CURRENT_DATE
+ORDER BY due_date ASC</pre>
+      </div>
+      <div class="message-table">
+        <table class="result-table">
+          <thead>
+            <tr>
+              <th>invoice_number</th>
+              <th>vendor_name</th>
+              <th>date</th>
+              <th>amount</th>
+              <th>status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${overdueInvoices.map(inv => `
+              <tr>
+                <td>${inv.invoice_number}</td>
+                <td>${inv.vendor}</td>
+                <td>${inv.date}</td>
+                <td>${formatCurrency(inv.amount)}</td>
+                <td><span class="status-badge status-badge--overdue">${inv.status}</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } else {
+    response = `
+      <div class="message-text">I understand you're asking about: "${query}"</div>
+      <div class="message-text">Here are some questions I can help with:</div>
+      <ul>
+        <li>What's the total spend in the last 90 days?</li>
+        <li>List top 5 vendors by spend</li>
+        <li>Show overdue invoices as of today</li>
+      </ul>
+    `;
   }
+
+  return response;
+}
+
+function sendChatMessage() {
+  const input = document.getElementById('chatInput');
+  const query = input.value.trim();
+  
+  if (!query) return;
+
+  // Disable input
+  input.disabled = true;
+  document.getElementById('sendButton').disabled = true;
+
+  // Add user message
+  addChatMessage('user', query);
+  input.value = '';
+
+  // Show loading
+  showLoading();
+
+  // Simulate API delay
+  setTimeout(() => {
+    hideLoading();
+    const response = handleChatQuery(query);
+    addChatMessage('assistant', response);
+
+    // Re-enable input
+    input.disabled = false;
+    document.getElementById('sendButton').disabled = false;
+    input.focus();
+  }, 800);
+}
+
+function copyToClipboard(button) {
+  const sqlCode = button.closest('.message-sql').querySelector('.sql-code').textContent;
+  navigator.clipboard.writeText(sqlCode).then(() => {
+    button.textContent = 'Copied!';
+    setTimeout(() => {
+      button.textContent = 'Copy';
+    }, 2000);
+  });
+}
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+  // Navigation
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const view = item.dataset.view;
+      switchView(view);
+    });
+  });
+
+  // Initialize charts
+  initCharts();
+
+  // Table search
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    state.searchQuery = e.target.value;
+    filterInvoices();
+  });
+
+  // Table sorting
+  document.querySelectorAll('th[data-sort]').forEach(th => {
+    th.addEventListener('click', () => {
+      sortInvoices(th.dataset.sort);
+    });
+  });
+
+  // Pagination
+  document.getElementById('prevPage').addEventListener('click', () => changePage('prev'));
+  document.getElementById('nextPage').addEventListener('click', () => changePage('next'));
+  document.getElementById('rowsPerPage').addEventListener('change', (e) => {
+    state.rowsPerPage = parseInt(e.target.value);
+    state.currentPage = 1;
+    renderTable();
+  });
+
+  // Chat
+  document.getElementById('sendButton').addEventListener('click', sendChatMessage);
+  document.getElementById('chatInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendChatMessage();
+  });
+
+  document.querySelectorAll('.example-question').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById('chatInput').value = btn.dataset.question;
+      sendChatMessage();
+    });
+  });
+
+  // Initial render
+  renderTable();
 });

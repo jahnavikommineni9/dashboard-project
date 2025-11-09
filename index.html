@@ -1,146 +1,228 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name="google-site-verification" content="85kpHExooO9kgunIx-jxwq8bt9E7xJRCClChuZjL1jg" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice Analytics Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="container">
-        <!-- Start Screen -->
-        <div id="start-screen" class="screen active">
-            <div class="card quiz-card">
-                <div class="card__header">
-                    <h1>Web Development Quiz</h1>
-                </div>
-                <div class="card__body">
-                    <div class="welcome-content">
-                        <h2>Welcome to the Quiz!</h2>
-                        <p>Test your knowledge of web development fundamentals including HTML, CSS, JavaScript, and more.</p>
-                        
-                        <div class="quiz-info">
-                            <div class="info-item">
-                                <span class="info-label">Questions:</span>
-                                <span class="info-value">10</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Time per question:</span>
-                                <span class="info-value">30 seconds</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Passing score:</span>
-                                <span class="info-value">70%</span>
-                            </div>
-                        </div>
-                        
-                        <div class="instructions">
-                            <h3>Instructions:</h3>
-                            <ul>
-                                <li>Read each question carefully</li>
-                                <li>Select one of the four multiple choice answers</li>
-                                <li>You have 30 seconds per question</li>
-                                <li>Click your answer to proceed</li>
-                                <li>Your final score will be displayed at the end</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="card__footer">
-                    <button id="start-btn" class="btn btn--primary btn--lg btn--full-width">Start Quiz</button>
-                </div>
-            </div>
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h1 class="sidebar-title">Invoice Analytics</h1>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-view="dashboard">
+        <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        <span>Analytics Dashboard</span>
+      </button>
+      <button class="nav-item" data-view="chat">
+        <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <span>Chat with Data</span>
+      </button>
+    </nav>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+    <!-- Analytics Dashboard View -->
+    <div id="dashboard-view" class="view active">
+      <!-- Overview Cards -->
+      <section class="overview-cards">
+        <div class="metric-card">
+          <div class="metric-icon" style="background-color: rgba(16, 185, 129, 0.1);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2">
+              <line x1="12" y1="1" x2="12" y2="23"></line>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+          </div>
+          <div class="metric-content">
+            <h3 class="metric-title">Total Spend (YTD)</h3>
+            <p class="metric-value" id="total-spend">$2,847,392</p>
+            <p class="metric-subtitle">Year to Date</p>
+            <span class="metric-badge metric-badge--success">+12.5% vs last year</span>
+          </div>
         </div>
 
-        <!-- Quiz Screen -->
-        <div id="quiz-screen" class="screen hidden">
-            <div class="quiz-header">
-                <div class="progress-section">
-                    <div class="question-counter">
-                        <span id="question-number">1</span> of <span id="total-questions">10</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div id="progress-fill" class="progress-fill"></div>
-                    </div>
-                </div>
-                
-                <div class="timer-section">
-                    <div class="timer-display">
-                        <span id="timer-text">Time remaining:</span>
-                        <span id="timer-countdown">30</span>s
-                    </div>
-                </div>
-            </div>
-
-            <div class="card quiz-card">
-                <div class="card__body">
-                    <div class="question-section">
-                        <h2 id="question-text">Loading question...</h2>
-                        
-                        <div id="options-container" class="options-container">
-                            <button class="option-btn" data-option="0">
-                                <span class="option-letter">A</span>
-                                <span class="option-text"></span>
-                            </button>
-                            <button class="option-btn" data-option="1">
-                                <span class="option-letter">B</span>
-                                <span class="option-text"></span>
-                            </button>
-                            <button class="option-btn" data-option="2">
-                                <span class="option-letter">C</span>
-                                <span class="option-text"></span>
-                            </button>
-                            <button class="option-btn" data-option="3">
-                                <span class="option-letter">D</span>
-                                <span class="option-text"></span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card__footer">
-                    <button id="next-btn" class="btn btn--primary btn--lg btn--full-width hidden">Next Question</button>
-                </div>
-            </div>
+        <div class="metric-card">
+          <div class="metric-icon" style="background-color: rgba(59, 130, 246, 0.1);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+          </div>
+          <div class="metric-content">
+            <h3 class="metric-title">Total Invoices Processed</h3>
+            <p class="metric-value" id="total-invoices">1,247</p>
+            <p class="metric-subtitle">This Year</p>
+            <span class="metric-badge metric-badge--info">+8.3% vs last year</span>
+          </div>
         </div>
 
-        <!-- Results Screen -->
-        <div id="results-screen" class="screen hidden">
-            <div class="card quiz-card">
-                <div class="card__header">
-                    <h1>Quiz Complete!</h1>
-                </div>
-                <div class="card__body">
-                    <div class="results-content">
-                        <div class="score-display">
-                            <div class="final-score">
-                                <span id="final-score">0</span> / <span id="total-score">10</span>
-                            </div>
-                            <div class="percentage-score">
-                                <span id="percentage-score">0</span>%
-                            </div>
-                        </div>
-                        
-                        <div id="performance-message" class="performance-message">
-                            <p>Great job!</p>
-                        </div>
-                        
-                        <div class="results-breakdown">
-                            <div class="breakdown-item correct">
-                                <span class="breakdown-label">Correct answers:</span>
-                                <span id="correct-count" class="breakdown-value">0</span>
-                            </div>
-                            <div class="breakdown-item incorrect">
-                                <span class="breakdown-label">Incorrect answers:</span>
-                                <span id="incorrect-count" class="breakdown-value">0</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card__footer">
-                    <button id="restart-btn" class="btn btn--primary btn--lg btn--full-width">Restart Quiz</button>
-                </div>
-            </div>
+        <div class="metric-card">
+          <div class="metric-icon" style="background-color: rgba(139, 92, 246, 0.1);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+          </div>
+          <div class="metric-content">
+            <h3 class="metric-title">Documents Uploaded</h3>
+            <p class="metric-value" id="documents-uploaded">3,891</p>
+            <p class="metric-subtitle">Total Documents</p>
+            <span class="metric-badge metric-badge--purple">+15.2% vs last year</span>
+          </div>
         </div>
+
+        <div class="metric-card">
+          <div class="metric-icon" style="background-color: rgba(245, 158, 11, 0.1);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+              <line x1="1" y1="10" x2="23" y2="10"></line>
+            </svg>
+          </div>
+          <div class="metric-content">
+            <h3 class="metric-title">Average Invoice Value</h3>
+            <p class="metric-value" id="avg-invoice-value">$2,283</p>
+            <p class="metric-subtitle">Per Invoice</p>
+            <span class="metric-badge metric-badge--warning">+3.8% vs last year</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Charts Section -->
+      <section class="charts-grid">
+        <div class="chart-card">
+          <h3 class="chart-title">Invoice Volume &amp; Value Trend</h3>
+          <div class="chart-container">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <h3 class="chart-title">Top 10 Vendors by Spend</h3>
+          <div class="chart-container">
+            <canvas id="vendorChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <h3 class="chart-title">Spend by Category</h3>
+          <div class="chart-container">
+            <canvas id="categoryChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <h3 class="chart-title">Cash Outflow Forecast (Next 6 Months)</h3>
+          <div class="chart-container">
+            <canvas id="forecastChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Invoices Table Section -->
+      <section class="table-section">
+        <div class="table-header">
+          <h3 class="table-title">Recent Invoices</h3>
+          <div class="table-controls">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search invoices...">
+          </div>
+        </div>
+        <div class="table-info">
+          <span id="tableCount">Showing 0 of 0 invoices</span>
+        </div>
+        <div class="table-wrapper">
+          <table class="invoices-table">
+            <thead>
+              <tr>
+                <th data-sort="invoice_number">Invoice # <span class="sort-icon"></span></th>
+                <th data-sort="vendor">Vendor <span class="sort-icon"></span></th>
+                <th data-sort="date">Date <span class="sort-icon"></span></th>
+                <th data-sort="amount">Amount <span class="sort-icon"></span></th>
+                <th data-sort="status">Status <span class="sort-icon"></span></th>
+              </tr>
+            </thead>
+            <tbody id="invoiceTableBody">
+              <!-- Populated by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <select id="rowsPerPage" class="rows-select">
+            <option value="10">10 rows</option>
+            <option value="25">25 rows</option>
+            <option value="50">50 rows</option>
+          </select>
+          <div class="pagination-controls">
+            <button id="prevPage" class="pagination-btn">Previous</button>
+            <span id="pageInfo">Page 1 of 1</span>
+            <button id="nextPage" class="pagination-btn">Next</button>
+          </div>
+        </div>
+      </section>
     </div>
 
-    <script src="app.js"></script>
+    <!-- Chat with Data View -->
+    <div id="chat-view" class="view">
+      <div class="chat-container">
+        <div class="chat-messages" id="chatMessages">
+          <div class="chat-welcome">
+            <h2 class="chat-welcome-title">Chat with Your Data</h2>
+            <p class="chat-welcome-subtitle">Ask questions in natural language about your invoices and spending</p>
+            <div class="example-questions">
+              <button class="example-question" data-question="What's the total spend in the last 90 days?">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                What's the total spend in the last 90 days?
+              </button>
+              <button class="example-question" data-question="List top 5 vendors by spend">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="8" y1="6" x2="21" y2="6"></line>
+                  <line x1="8" y1="12" x2="21" y2="12"></line>
+                  <line x1="8" y1="18" x2="21" y2="18"></line>
+                  <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                  <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                  <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                </svg>
+                List top 5 vendors by spend
+              </button>
+              <button class="example-question" data-question="Show overdue invoices as of today">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                Show overdue invoices as of today
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="chat-input-container">
+          <input type="text" id="chatInput" class="chat-input" placeholder="Ask a question about your data...">
+          <button id="sendButton" class="send-button">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
 </body>
 </html>
